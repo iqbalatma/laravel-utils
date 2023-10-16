@@ -9,6 +9,9 @@ use Iqbalatma\LaravelUtils\Exceptions\DumpAPIException;
  * @throws DumpAPIException
  */
 if (!function_exists('ddapi')) {
+    /**
+     * @throws DumpAPIException
+     */
     function ddapi(mixed $data)
     {
         throw new DumpAPIException($data);
