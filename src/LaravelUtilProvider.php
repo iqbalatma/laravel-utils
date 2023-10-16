@@ -15,7 +15,7 @@ class LaravelUtilProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->mergeConfigFrom(__DIR__ . '/Config/utils.php', 'utils');
     }
 
     /**
