@@ -3,7 +3,10 @@
     "autoload": {
         "psr-4": {
             "Iqbalatma\\LaravelUtils\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {
