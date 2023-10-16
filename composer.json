@@ -1,0 +1,15 @@
+{
+    "name": "iqbalatma/laravel-utils",
+    "autoload": {
+        "psr-4": {
+            "Iqbalatma\\LaravelUtils\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Iqbal Atma Muliawan",
+            "email": "iqbalatma@gmail.com"
+        }
+    ],
+    "require": {}
+}
