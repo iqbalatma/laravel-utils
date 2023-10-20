@@ -26,16 +26,21 @@ class APIResponse implements Responsable
         protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data,
         protected ?string                                                                                   $message,
         protected ?ResponseCodeInterface                                                                    $responseCode,
+        protected string|array|null                                                                         $errors,
         protected Error|Exception|Throwable|null                                                            $error = null
     )
     {
         $this->baseFormat = [
             "code" => $this->getResponseCode()->name,
             "message" => $this->getMessage(),
-            "timestamp" => now(),
-            "payload" => null
+            "timestamp" => now()
         ];
 
+        if (!is_null($this->errors)) {
+            $this->baseFormat["errors"] = $this->errors;
+        }
+
+        $this->baseFormat["payload"] = null;
 
         if (($error instanceof \Throwable) && config("app.env") !== "production" && config("app.debug") === true) {
             $this->baseFormat["exception"] = [
