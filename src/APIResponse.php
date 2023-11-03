@@ -49,12 +49,12 @@ class APIResponse implements Responsable
         ) {
             $this->baseFormat["exception"] = [
                 "name" => get_class($this->exception),
-                "message" => $error->getMessage(),
+                "message" => $this->exception->getMessage(),
                 "http_code" => $this->getHttpCode(),
-                "code" => $error->getCode(),
-                "file" => $error->getFile(),
-                "line" => $error->getLine(),
-                "trace" => $error->getTrace(),
+                "code" => $this->exception->getCode(),
+                "file" => $this->exception->getFile(),
+                "line" => $this->exception->getLine(),
+                "trace" => $this->exception->getTrace(),
             ];
         }
     }
