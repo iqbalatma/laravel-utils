@@ -43,7 +43,7 @@ class APIResponse implements Responsable
         $this->baseFormat["payload"] = null;
 
         if (
-            ($error instanceof \Throwable) &&
+            ($this->exception instanceof \Throwable) &&
             config("app.env") !== "production" &&
             config("app.debug") === true
         ) {
