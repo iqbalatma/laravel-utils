@@ -23,10 +23,10 @@ class APIResponse implements Responsable
     protected const PAYLOAD_WRAPPER = "payload";
 
     public function __construct(
-        protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data,
-        protected ?string                                                                                   $message,
-        protected ?ResponseCodeInterface                                                                    $responseCode,
-        protected string|array|null                                                                         $errors,
+        protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
+        protected string|null                                                                               $message = null,
+        protected ResponseCodeInterface|null                                                                $responseCode = null,
+        protected string|array|null                                                                         $errors = null,
         protected Error|Exception|Throwable|null                                                            $error = null
     )
     {
@@ -42,7 +42,11 @@ class APIResponse implements Responsable
 
         $this->baseFormat["payload"] = null;
 
-        if (($error instanceof \Throwable) && config("app.env") !== "production" && config("app.debug") === true) {
+        if (
+            ($error instanceof \Throwable) &&
+            config("app.env") !== "production" &&
+            config("app.debug") === true
+        ) {
             $this->baseFormat["exception"] = [
                 "name" => get_class($this->error),
                 "message" => $error->getMessage(),
@@ -86,26 +90,25 @@ class APIResponse implements Responsable
     /**
      * @return JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null
      */
-    protected
-    function getData(): JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null
+    protected function getData(): JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null
     {
         return $this->data;
     }
 
+
     /**
      * @return string
      */
-    protected
-    function getMessage(): string
+    protected function getMessage(): string
     {
         return $this->message ?? "";
     }
 
+
     /**
      * @return int
      */
-    protected
-    function getHttpCode(): int
+    protected function getHttpCode(): int
     {
         if ($this->error instanceof HttpExceptionInterface) {
             return $this->error->getStatusCode();
@@ -117,31 +120,45 @@ class APIResponse implements Responsable
     /**
      * @return array
      */
-    protected
-    function getBaseFormat(): array
+    protected function getBaseFormat(): array
     {
         return $this->baseFormat;
     }
 
+
     /**
      * @return array
      */
-    private
-    function getFormattedResponse(): array
+    protected function getFormattedResponse(): array
     {
         if ($this->getData() instanceof Paginator) {
-            return array_merge($this->getBaseFormat(), [self::PAYLOAD_WRAPPER => $this->getData()->toArray()]);
+            $meta = $this->getData()->toArray();
+            unset($meta["data"]);
+
+            return array_merge($this->getBaseFormat(), [
+                self::PAYLOAD_WRAPPER => array_merge(
+                    [JsonResource::$wrap => $this->getData()->toArray()["data"]],
+                    $meta,
+                )
+            ]);
         }
 
         if ($this->getData() instanceof Arrayable) {
-            return array_merge($this->getBaseFormat(), [self::PAYLOAD_WRAPPER => [JsonResource::$wrap => $this->getData()->toArray()]]);
+            return array_merge($this->getBaseFormat(), [
+                self::PAYLOAD_WRAPPER => [
+                    JsonResource::$wrap => $this->getData()->toArray()
+                ]
+            ]);
         }
 
         if (($this->getData()?->resource ?? null) instanceof AbstractPaginator) {
+            $meta = $this->getData()->resource->toArray();
+            unset($meta["data"]);
+
             return array_merge($this->getBaseFormat(), [
                 self::PAYLOAD_WRAPPER => array_merge(
-                    $this->getData()->resource->toArray(),
-                    [JsonResource::$wrap => $this->getData()]
+                    [JsonResource::$wrap => $this->getData()],
+                    $meta,
                 )
             ]);
         }

@@ -27,23 +27,4 @@ trait APIResponseTrait
     {
         return $this->responseMessages[$context];
     }
-
-    /**
-     * @param JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data
-     * @param string|null $message
-     * @param ResponseCodeInterface|null $responseCode
-     * @param string|array|null $errors
-     * @param Error|Exception|Throwable|null $exception
-     * @return APIResponse
-     */
-    public function apiResponse(
-        JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
-        ?string                                                                                   $message = null,
-        ?ResponseCodeInterface                                                                    $responseCode = null,
-        string|array|null                                                                         $errors = null,
-        Error|Exception|Throwable|null                                                            $exception = null
-    ): APIResponse
-    {
-        return new APIResponse($data, $message, $responseCode, $errors, $exception);
-    }
 }
