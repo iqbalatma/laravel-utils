@@ -27,7 +27,7 @@ class APIResponse implements Responsable
         protected string|null                                                                               $message = null,
         protected ResponseCodeInterface|null                                                                $responseCode = null,
         protected string|array|null                                                                         $errors = null,
-        protected Error|Exception|Throwable|null                                                            $error = null
+        protected Error|Exception|Throwable|null                                                            $exception = null
     )
     {
         $this->baseFormat = [
@@ -48,7 +48,7 @@ class APIResponse implements Responsable
             config("app.debug") === true
         ) {
             $this->baseFormat["exception"] = [
-                "name" => get_class($this->error),
+                "name" => get_class($this->exception),
                 "message" => $error->getMessage(),
                 "http_code" => $this->getHttpCode(),
                 "code" => $error->getCode(),
@@ -65,9 +65,9 @@ class APIResponse implements Responsable
     protected function getResponseCode(): ResponseCodeInterface
     {
         if (is_null($this->responseCode)) {
-            if ($this->error) {
-                if ($this->error instanceof HttpExceptionInterface) {
-                    $httpCode = (string)$this->error->getStatusCode();
+            if ($this->exception) {
+                if ($this->exception instanceof HttpExceptionInterface) {
+                    $httpCode = (string)$this->exception->getStatusCode();
                     if (str_starts_with($httpCode, "5")) {
                         return ResponseCode::ERR_INTERNAL_SERVER_ERROR();
                     } elseif (str_starts_with($httpCode, "4")) {
@@ -110,8 +110,8 @@ class APIResponse implements Responsable
      */
     protected function getHttpCode(): int
     {
-        if ($this->error instanceof HttpExceptionInterface) {
-            return $this->error->getStatusCode();
+        if ($this->exception instanceof HttpExceptionInterface) {
+            return $this->exception->getStatusCode();
         }
         return $this->getResponseCode()->httpCode ?? Response::HTTP_INTERNAL_SERVER_ERROR;
     }
