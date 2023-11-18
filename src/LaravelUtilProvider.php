@@ -7,6 +7,7 @@ use Iqbalatma\LaravelUtils\Console\Command\GenerateAbstract;
 use Iqbalatma\LaravelUtils\Console\Command\GenerateEnum;
 use Iqbalatma\LaravelUtils\Console\Command\GenerateInterface;
 use Iqbalatma\LaravelUtils\Console\Command\GenerateTrait;
+use Iqbalatma\LaravelUtils\Console\Command\PublishStub;
 
 class LaravelUtilProvider extends ServiceProvider
 {
@@ -16,6 +17,10 @@ class LaravelUtilProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/Config/utils.php', 'utils');
+
+        $this->publishes([
+            __DIR__.'/Config/utils.php' => config_path('utils.php'),
+        ], "config");
     }
 
     /**
@@ -29,11 +34,8 @@ class LaravelUtilProvider extends ServiceProvider
                 GenerateEnum::class,
                 GenerateInterface::class,
                 GenerateTrait::class,
+                PublishStub::class,
             ]);
         }
-
-        $this->publishes([
-            __DIR__.'/Config/utils.php' => config_path('utils.php'),
-        ]);
     }
 }

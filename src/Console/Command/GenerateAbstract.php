@@ -3,9 +3,10 @@
 namespace Iqbalatma\LaravelUtils\Console\Command;
 
 use Illuminate\Console\Command;
+use Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface;
 use Iqbalatma\LaravelUtils\Traits\MakeCommand;
 
-class GenerateAbstract extends Command
+class GenerateAbstract extends Command implements MakeCommandInterface
 {
     use MakeCommand;
 
@@ -30,11 +31,33 @@ class GenerateAbstract extends Command
      */
     public function handle(): void
     {
-        $this->prepareMakeCommand(app_path("Contracts/Abstracts"), "App\\Contracts\\Abstracts")
+        $this->prepareMakeCommand(config("utils.target_abstract_dir", "app/Contracts/Abstracts"))
             ->generateFromStub();
     }
 
-    protected function getStubVariables(): array
+    /**
+     * @return string
+     */
+    public function getStubContent(): string
+    {
+        /**
+         * using abstract stub from published stub if exists, and default stub if not exists
+         */
+        $stubContent = $this->filesystem->exists(base_path("stubs/laravel-utils/abstract.stub")) ?
+            file_get_contents("stubs/laravel-utils/abstract.stub") :
+            file_get_contents(self::STUB_FILE_PATH);
+
+        /**
+         * replacing stub placeholder with variables
+         */
+        foreach ($this->getStubVariables() as $key => $variable) {
+            $stubContent = str_replace("*$key*", $variable, $stubContent);
+        }
+
+        return $stubContent;
+    }
+
+    public function getStubVariables(): array
     {
         return [
             "CLASS_NAME" => $this->getClassName(),
