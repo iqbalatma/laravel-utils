@@ -132,9 +132,8 @@ trait MakeCommand
     protected function makeDirectory(): static
     {
         $this->filesystem = new Filesystem();
-
         if (!$this->filesystem->isDirectory($this->getTargetPath())) {
-            $this->filesystem->makeDirectory($this->getTargetPath());
+            $this->filesystem->makeDirectory($this->getTargetPath(), recursive: true);
         }
         return $this;
     }
