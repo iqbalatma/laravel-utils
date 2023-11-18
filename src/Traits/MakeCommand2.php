@@ -4,10 +4,8 @@ namespace Iqbalatma\LaravelUtils\Traits;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
-use Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface;
 
-trait MakeCommand
+trait MakeCommand2
 {
     private string $argumentName;
     private string $className;
@@ -64,7 +62,7 @@ trait MakeCommand
      */
     protected function setTargetPath(string $targetPath): static
     {
-        $this->targetPath = base_path($targetPath);
+        $this->targetPath = $targetPath;
 
         /**
          * example: if argument only Role
@@ -104,12 +102,12 @@ trait MakeCommand
     }
 
     /**
-     * @param string $targetPath
+     * @param string $defaultNamespace
      * @return MakeCommand
      */
-    private function setNamespace(string $targetPath): static
+    private function setNamespace(string $defaultNamespace): static
     {
-        $this->namespace = str_replace("/", "\\", Str::studly($targetPath));
+        $this->namespace = $defaultNamespace;
         if (($dirname = dirname($this->getArgumentName())) !== ".") {
             $dirname = ucwords(str_replace("/", "\\", $dirname));
             $this->namespace .= "\\$dirname";
@@ -139,6 +137,10 @@ trait MakeCommand
         return $this;
     }
 
+    /**
+     * @return array
+     */
+//    protected abstract function getStubVariables(): array;
 
     /**
      * @return void
@@ -146,30 +148,39 @@ trait MakeCommand
     protected function generateFromStub(): void
     {
         if (!$this->filesystem->exists($this->getFilename())) {
-            $this->filesystem->put($this->getFilename(), $this->getStubContent());
+            $this->filesystem->put($this->getFilename(), $this->getFileContent(self::STUB_FILE_PATH));
             $this->info("Create " . $this->getClassName() . " successfully");
         } else {
             $this->error($this->className . " already exists");
         }
     }
 
+//    /**
+//     * @param string $stubPath
+//     * @return string
+//     */
+//    protected function getFileContent(string $stubPath): string
+//    {
+//        $stubContent = file_get_contents($stubPath);
+//
+//        foreach ($this->getStubVariables() as $key => $variable) {
+//            $stubContent = str_replace("*$key*", $variable, $stubContent);
+//        }
+//        return $stubContent;
+//    }
 
     /**
      * @param string $targetPath
+     * @param string $defaultNamespace
      * @return $this
      */
-    protected function prepareMakeCommand(string $targetPath): static
+    protected function prepareMakeCommand(string $targetPath, string $defaultNamespace): static
     {
-        if (!($this instanceof MakeCommandInterface)){
-            $this->error("Generate file failed");
-            $this->error("Class ". get_class($this) . " should implement Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface");
-            die();
-        }
         $this->setArgumentName()
             ->setClassName()
             ->setTargetPath($targetPath)
             ->setFilename()
-            ->setNamespace($targetPath)
+            ->setNamespace($defaultNamespace)
             ->makeDirectory();
 
         return $this;

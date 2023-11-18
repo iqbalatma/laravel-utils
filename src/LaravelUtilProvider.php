@@ -16,6 +16,10 @@ class LaravelUtilProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/Config/utils.php', 'utils');
+
+        $this->publishes([
+            __DIR__.'/Console/Stubs/enum.stub' => base_path('stubs/laravel-utils/enum.stub'),
+        ], 'stub_enum');
     }
 
     /**
