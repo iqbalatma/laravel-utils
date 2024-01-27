@@ -25,7 +25,7 @@ class ResponseCode implements ResponseCodeInterface
     public function __construct(string $name)
     {
         $this->name = $name;
-        $this->value = constant(__CLASS__ . '::' . $name);
+        $this->value = constant(get_class($this) . '::' . $name);
     }
 
     protected const SUCCESS = "SUCCESS";
