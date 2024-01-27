@@ -20,7 +20,7 @@ class ResponseCode implements ResponseCodeInterface
 {
     public string $value;
     public string $name;
-    public string $httpCode;
+    public string|null $httpCode;
 
     public function __construct(string $name)
     {
