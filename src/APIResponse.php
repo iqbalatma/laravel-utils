@@ -36,6 +36,7 @@ class APIResponse extends BaseAPIResponse
         $this->setBaseFormat();
     }
 
+
     /**
      * @return ResponseCodeInterface
      */
