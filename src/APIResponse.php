@@ -39,7 +39,7 @@ class APIResponse extends BaseAPIResponse
     /**
      * @return ResponseCodeInterface
      */
-    protected function getResponseCode(): ResponseCodeInterface
+    protected function getCode(): ResponseCodeInterface
     {
         if (is_null($this->responseCode)) {
             if ($this->exception) {
@@ -74,7 +74,7 @@ class APIResponse extends BaseAPIResponse
         if ($this->exception instanceof HttpExceptionInterface) {
             return $this->exception->getStatusCode();
         }
-        return $this->getResponseCode()->httpCode ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+        return $this->getCode()->httpCode ?? Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
 

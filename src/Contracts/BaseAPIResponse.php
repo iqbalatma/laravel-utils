@@ -31,17 +31,18 @@ abstract class BaseAPIResponse implements Responsable
     {
         return response()->json($this->getFormattedResponse(), $this->getHttpCode());
     }
-
     /**
      * @return array
      */
     abstract protected function getFormattedResponse(): array;
-
     /**
      * @return int
      */
     abstract protected function getHttpCode(): int;
-    abstract protected function getResponseCode(): ResponseCodeInterface;
+    /**
+     * @return ResponseCodeInterface
+     */
+    abstract protected function getCode(): ResponseCodeInterface;
 
 
     /**
@@ -73,27 +74,33 @@ abstract class BaseAPIResponse implements Responsable
     /**
      * @return void
      */
-    protected function setBaseFormat():void
+    protected function setBaseFormat(): void
     {
         $this->baseFormat = [
-            "code" => $this->getResponseCode()->name,
+            "code" => $this->getCode()->name,
             "message" => $this->getMessage(),
             "timestamp" => now()
         ];
 
-        if ($this->errors) { #when errors are detected
+        if ($this->errors) { #when errors are detected, mostly for validation error
             $this->baseFormat["errors"] = $this->errors;
         }
 
-        if (self::getPayloadWrapper()) { #when payload wrapper are set, we will preserve the key
+        if (self::getPayloadWrapper()) { #when payload wrapper is set, we will preserve the key
             $this->baseFormat[self::getPayloadWrapper()] = null;
         }
 
-        if (
-            ($this->exception instanceof Throwable) &&
-            config("app.env") !== "production" &&
-            config("app.debug") === true
-        ) {
+        if ($this->exception instanceof Throwable && config("utils.is_show_debug")) {
+            $this->baseFormat["user_request"] = [
+                'ip_address' => request()->getClientIp(),
+                'base_url' => request()->getBaseUrl() ?? null,
+                'path' => request()->getUri() ?? null,
+                'params' => request()->getQueryString(),
+                'origin' => request()->ip() ?? null,
+                'method' => request()->getMethod() ?? null,
+                'header' => request()->headers->all() ?? null,
+                'body' => request()->all() ?? null,
+            ];
             $this->baseFormat["exception"] = [
                 "name" => get_class($this->exception),
                 "message" => $this->exception->getMessage(),

@@ -6,6 +6,7 @@ return [
     "target_abstract_dir" => "app/Contracts/Abstracts",
     "target_interface_dir" => "app/Contracts/Interfaces",
     "api_response" => [
-        "payload_wrapper" => "payload"
-    ]
+        "payload_wrapper" => "payload",
+    ],
+    "is_show_debug" => env("APP_DEBUG", false)
 ];
