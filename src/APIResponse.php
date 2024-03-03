@@ -20,42 +20,20 @@ use Throwable;
 class APIResponse extends BaseAPIResponse
 {
     public function __construct(
-        protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
-        protected string                                                                                    $message = "",
-        protected ResponseCodeInterface|null                                                                $responseCode = null,
-        protected string|array|null                                                                         $errors = null,
-        protected Error|Exception|Throwable|null                                                            $exception = null
+        JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
+        string                                                                                    $message = "",
+        ResponseCodeInterface|null                                                                $responseCode = null,
+        string|array|null                                                                         $errors = null,
+        Error|Exception|Throwable|null                                                            $exception = null
     )
     {
-        $this->baseFormat = [
-            "code" => $this->getResponseCode()->name,
-            "message" => $this->getMessage(),
-            "timestamp" => now()
-        ];
+        $this->data = $data;
+        $this->message = $message;
+        $this->responseCode = $responseCode;
+        $this->errors = $errors;
+        $this->exception = $exception;
 
-        if (!is_null($this->errors)) {
-            $this->baseFormat["errors"] = $this->errors;
-        }
-
-        if (self::getPayloadWrapper()) {
-            $this->baseFormat[self::getPayloadWrapper()] = null;
-        }
-
-        if (
-            ($this->exception instanceof \Throwable) &&
-            config("app.env") !== "production" &&
-            config("app.debug") === true
-        ) {
-            $this->baseFormat["exception"] = [
-                "name" => get_class($this->exception),
-                "message" => $this->exception->getMessage(),
-                "http_code" => $this->getHttpCode(),
-                "code" => $this->exception->getCode(),
-                "file" => $this->exception->getFile(),
-                "line" => $this->exception->getLine(),
-                "trace" => $this->exception->getTrace(),
-            ];
-        }
+        $this->setBaseFormat();
     }
 
     /**
