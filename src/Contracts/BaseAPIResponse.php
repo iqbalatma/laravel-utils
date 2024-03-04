@@ -4,24 +4,36 @@ namespace Iqbalatma\LaravelUtils\Contracts;
 
 use Error;
 use Exception;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Iqbalatma\LaravelUtils\Interfaces\ResponseCodeInterface;
+use Iqbalatma\LaravelUtils\ResponseCode;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 abstract class BaseAPIResponse implements Responsable
 {
     protected array $baseFormat;
+    protected array $formattedResponse;
     protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data;
     protected string $message;
     protected ResponseCodeInterface|null $responseCode;
     protected string|array|null $errors;
     protected Error|Exception|Throwable|null $exception;
+
+
+    /**
+     * @return void
+     */
+    abstract protected function setFormattedResponse(): void;
+
 
     /**
      * @param $request
@@ -31,18 +43,6 @@ abstract class BaseAPIResponse implements Responsable
     {
         return response()->json($this->getFormattedResponse(), $this->getHttpCode());
     }
-    /**
-     * @return array
-     */
-    abstract protected function getFormattedResponse(): array;
-    /**
-     * @return int
-     */
-    abstract protected function getHttpCode(): int;
-    /**
-     * @return ResponseCodeInterface
-     */
-    abstract protected function getCode(): ResponseCodeInterface;
 
 
     /**
@@ -62,6 +62,7 @@ abstract class BaseAPIResponse implements Responsable
         return $this->message;
     }
 
+
     /**
      * @return JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null
      */
@@ -72,46 +73,54 @@ abstract class BaseAPIResponse implements Responsable
 
 
     /**
-     * @return void
+     * @return array
      */
-    protected function setBaseFormat(): void
+    protected function getFormattedResponse(): array
     {
-        $this->baseFormat = [
-            "code" => $this->getCode()->name,
-            "message" => $this->getMessage(),
-            "timestamp" => now()
-        ];
-
-        if ($this->errors) { #when errors are detected, mostly for validation error
-            $this->baseFormat["errors"] = $this->errors;
-        }
-
-        if (self::getPayloadWrapper()) { #when payload wrapper is set, we will preserve the key
-            $this->baseFormat[self::getPayloadWrapper()] = null;
-        }
-
-        if ($this->exception instanceof Throwable && config("utils.is_show_debug")) {
-            $this->baseFormat["user_request"] = [
-                'ip_address' => request()->getClientIp(),
-                'base_url' => request()->getBaseUrl() ?? null,
-                'path' => request()->getUri() ?? null,
-                'params' => request()->getQueryString(),
-                'origin' => request()->ip() ?? null,
-                'method' => request()->getMethod() ?? null,
-                'header' => request()->headers->all() ?? null,
-                'body' => request()->all() ?? null,
-            ];
-            $this->baseFormat["exception"] = [
-                "name" => get_class($this->exception),
-                "message" => $this->exception->getMessage(),
-                "http_code" => $this->getHttpCode(),
-                "code" => $this->exception->getCode(),
-                "file" => $this->exception->getFile(),
-                "line" => $this->exception->getLine(),
-                "trace" => $this->exception->getTrace(),
-            ];
-        }
+        return $this->formattedResponse;
     }
+
+
+    /**
+     * @return ResponseCodeInterface
+     */
+    protected function getCode(): ResponseCodeInterface
+    {
+        if (is_null($this->responseCode)) {
+            if ($this->exception) {
+                if ($this->exception instanceof HttpExceptionInterface) {
+                    $httpCode = (string)$this->exception->getStatusCode();
+                    if (str_starts_with($httpCode, "5")) {
+                        return ResponseCode::ERR_INTERNAL_SERVER_ERROR();
+                    }
+
+                    if (str_starts_with($httpCode, "4")) {
+                        return ResponseCode::ERR_BAD_REQUEST();
+                    }
+
+                    return ResponseCode::ERR_UNKNOWN();
+                }
+
+                return ResponseCode::ERR_UNKNOWN();
+            }
+
+            return ResponseCode::SUCCESS();
+        }
+
+        return $this->responseCode;
+    }
+
+    /**
+     * @return int
+     */
+    protected function getHttpCode(): int
+    {
+        if ($this->exception instanceof HttpExceptionInterface) {
+            return $this->exception->getStatusCode();
+        }
+        return $this->getCode()->httpCode ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+    }
+
 
     /**
      * @return string|null

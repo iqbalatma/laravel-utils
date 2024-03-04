@@ -13,12 +13,14 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\CursorPaginator;
 use Iqbalatma\LaravelUtils\Contracts\BaseAPIResponse;
 use Iqbalatma\LaravelUtils\Interfaces\ResponseCodeInterface;
+use Iqbalatma\LaravelUtils\Traits\FormatResponsePayloadTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class APIResponse extends BaseAPIResponse
 {
+    use FormatResponsePayloadTrait;
     public function __construct(
         JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
         string                                                                                    $message = "",
@@ -33,124 +35,63 @@ class APIResponse extends BaseAPIResponse
         $this->errors = $errors;
         $this->exception = $exception;
 
-        $this->setBaseFormat();
+        $this->setBaseFormat()
+            ->setFormattedResponse();
     }
 
 
     /**
-     * @return ResponseCodeInterface
+     * @return BaseAPIResponse
      */
-    protected function getCode(): ResponseCodeInterface
+    protected function setBaseFormat(): self
     {
-        if (is_null($this->responseCode)) {
-            if ($this->exception) {
-                if ($this->exception instanceof HttpExceptionInterface) {
-                    $httpCode = (string)$this->exception->getStatusCode();
-                    if (str_starts_with($httpCode, "5")) {
-                        return ResponseCode::ERR_INTERNAL_SERVER_ERROR();
-                    }
+        $this->baseFormat = [
+            "code" => $this->getCode()->name,
+            "message" => $this->getMessage(),
+            "timestamp" => now()
+        ];
 
-                    if (str_starts_with($httpCode, "4")) {
-                        return ResponseCode::ERR_BAD_REQUEST();
-                    }
-
-                    return ResponseCode::ERR_UNKNOWN();
-                }
-
-                return ResponseCode::ERR_UNKNOWN();
-            }
-
-            return ResponseCode::SUCCESS();
+        if ($this->errors) { #when errors are detected, mostly for validation error
+            $this->baseFormat["errors"] = $this->errors;
         }
 
-        return $this->responseCode;
-    }
-
-
-    /**
-     * @return int
-     */
-    protected function getHttpCode(): int
-    {
-        if ($this->exception instanceof HttpExceptionInterface) {
-            return $this->exception->getStatusCode();
-        }
-        return $this->getCode()->httpCode ?? Response::HTTP_INTERNAL_SERVER_ERROR;
-    }
-
-
-    /**
-     * @return array
-     */
-    protected function getFormattedResponse(): array
-    {
-        if ($this->getData() instanceof Paginator) {
-            $meta = $this->getData()->toArray();
-            unset($meta["data"]);
-
-            if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => array_merge(
-                        [JsonResource::$wrap => $this->getData()->toArray()["data"]],
-                        $meta,
-                    )
-                ];
-            } else {
-                $mergeTarget = array_merge(
-                    [JsonResource::$wrap => $this->getData()->toArray()["data"]],
-                    $meta,
-                );
-            }
-            return array_merge($this->getBaseFormat(), $mergeTarget);
+        if (self::getPayloadWrapper()) { #when payload wrapper is set, we will preserve the key
+            $this->baseFormat[self::getPayloadWrapper()] = null;
         }
 
-        if ($this->getData() instanceof Arrayable) {
-            if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => [
-                        JsonResource::$wrap => $this->getData()->toArray()
-                    ]
-                ];
-            } else {
-                $mergeTarget = [
-                    JsonResource::$wrap => $this->getData()->toArray()
-                ];
-            }
-            return array_merge($this->getBaseFormat(), $mergeTarget);
-        }
-
-        if (($this->getData()?->resource ?? null) instanceof AbstractPaginator) {
-            $meta = $this->getData()->resource->toArray();
-            unset($meta["data"]);
-
-            if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => array_merge(
-                        [JsonResource::$wrap => $this->getData()],
-                        $meta,
-                    )
-                ];
-            } else {
-                $mergeTarget = array_merge(
-                    [JsonResource::$wrap => $this->getData()],
-                    $meta,
-                );
-            }
-            return array_merge($this->getBaseFormat(), $mergeTarget);
-        }
-
-        if (self::getPayloadWrapper()) {
-            $mergeTarget = [
-                self::getPayloadWrapper() => is_null($this->data) ? $this->data : [JsonResource::$wrap => $this->data]
+        if ($this->exception instanceof Throwable && config("utils.is_show_debug")) {
+            $this->baseFormat["user_request"] = [
+                'ip_address' => request()->getClientIp(),
+                'base_url' => request()->getBaseUrl() ?? null,
+                'path' => request()->getUri() ?? null,
+                'params' => request()->getQueryString(),
+                'origin' => request()->ip() ?? null,
+                'method' => request()->getMethod() ?? null,
+                'header' => request()->headers->all() ?? null,
+                'body' => request()->all() ?? null,
             ];
-            return array_merge($this->getBaseFormat(), $mergeTarget);
-        } else {
-            if ($this->data) {
-                return array_merge($this->getBaseFormat(), [JsonResource::$wrap => $this->data]);
-            } else {
-                return array_merge($this->getBaseFormat());
-            }
+            $this->baseFormat["exception"] = [
+                "name" => get_class($this->exception),
+                "message" => $this->exception->getMessage(),
+                "http_code" => $this->getHttpCode(),
+                "code" => $this->exception->getCode(),
+                "file" => $this->exception->getFile(),
+                "line" => $this->exception->getLine(),
+                "trace" => $this->exception->getTrace(),
+            ];
         }
 
+        return $this;
+    }
+
+    /**
+     * @return void
+     */
+    protected function setFormattedResponse(): void
+    {
+        $this->setResponseForPaginator()
+            ->setResponseForArrayable()
+            ->setResponseForAbstractPaginator()
+            ->setResponseForResource();
     }
 }
