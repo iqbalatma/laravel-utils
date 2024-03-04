@@ -89,6 +89,7 @@ class APIResponse extends BaseAPIResponse
      */
     protected function setFormattedResponse(): void
     {
+        $this->formattedResponse = $this->getBaseFormat();
         $this->setResponseForPaginator()
             ->setResponseForArrayable()
             ->setResponseForAbstractPaginator()

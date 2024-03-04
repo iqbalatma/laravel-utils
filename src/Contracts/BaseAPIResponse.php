@@ -34,6 +34,8 @@ abstract class BaseAPIResponse implements Responsable
      */
     abstract protected function setFormattedResponse(): void;
 
+    abstract protected function setBaseFormat(): self;
+
 
     /**
      * @param $request
@@ -123,9 +125,9 @@ abstract class BaseAPIResponse implements Responsable
 
 
     /**
-     * @return string|null
+     * @return string|bool|null
      */
-    protected static function getPayloadWrapper(): string|null
+    protected static function getPayloadWrapper(): string|null|bool
     {
         return config("utils.api_response.payload_wrapper");
     }

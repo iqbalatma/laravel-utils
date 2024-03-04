@@ -8,6 +8,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\AbstractPaginator;
 use Iqbalatma\LaravelUtils\APIResponse;
 
+/**
+ * @property array formattedResponse
+ */
 trait FormatResponsePayloadTrait
 {
     /**
@@ -90,18 +93,12 @@ trait FormatResponsePayloadTrait
     /**
      * @return APIResponse|FormatResponsePayloadTrait
      */
-    protected function setResponseForResource():self
+    protected function setResponseForResource(): self
     {
         if (self::getPayloadWrapper()) {
-            $this->formattedResponse = array_merge($this->getBaseFormat(), [
-                self::getPayloadWrapper() => is_null($this->data) ? $this->data : [JsonResource::$wrap => $this->data]
-            ]);
-        } else {
-            if ($this->data) {
-                $this->formattedResponse = array_merge($this->getBaseFormat(), [JsonResource::$wrap => $this->data]);
-            } else {
-                $this->formattedResponse = array_merge($this->getBaseFormat());
-            }
+            $this->formattedResponse[self::getPayloadWrapper()] = is_null($this->data) ? $this->data : [JsonResource::$wrap => $this->data];
+        } elseif (!self::getPayloadWrapper() && $this->data) {
+            $this->formattedResponse[JsonResource::$wrap] = $this->data;
         }
 
         return $this;
