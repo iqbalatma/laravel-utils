@@ -96,7 +96,7 @@ trait FormatResponsePayloadTrait
     protected function setResponseForResource(): self
     {
         if (self::getPayloadWrapper()) {
-            $this->formattedResponse[self::getPayloadWrapper()] = is_null($this->data) ? $this->data : [JsonResource::$wrap => $this->data];
+            $this->formattedResponse[self::getPayloadWrapper()] = $this->data ? [JsonResource::$wrap => $this->data] : null;
         } elseif (!self::getPayloadWrapper() && $this->data) {
             $this->formattedResponse[JsonResource::$wrap] = $this->data;
         }
