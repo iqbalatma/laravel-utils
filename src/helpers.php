@@ -17,21 +17,3 @@ if (!function_exists('ddapi')) {
         throw new DumpAPIException($data);
     }
 }
-
-
-
-/**
- * @param mixed $data
- * @return mixed
- * @throws DumpAPIException
- */
-if (!function_exists('getNamespaceFromPath')) {
-    /**
-     * @throws DumpAPIException
-     */
-    function getNamespaceFromPath(string $path)
-    {
-
-    }
-}
-

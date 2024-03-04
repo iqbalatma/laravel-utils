@@ -18,24 +18,22 @@ trait FormatResponsePayloadTrait
      */
     protected function setResponseForPaginator(): self
     {
-        if ($this->getData() instanceof Paginator) {
+        if (count($this->formattedResponse) === 0 && $this->getData() instanceof Paginator) {
             $meta = $this->getData()->toArray();
             unset($meta["data"]);
 
             if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => array_merge(
-                        [JsonResource::$wrap => $this->getData()->toArray()["data"]],
-                        $meta,
-                    )
-                ];
+                $this->formattedResponse[self::getPayloadWrapper()] = array_merge(
+                    [JsonResource::$wrap => $this->getData()->toArray()["data"]],
+                    $meta,
+                );
             } else {
-                $mergeTarget = array_merge(
+                $this->formattedResponse = array_merge(
+                    $this->formattedResponse,
                     [JsonResource::$wrap => $this->getData()->toArray()["data"]],
                     $meta,
                 );
             }
-            $this->formattedResponse = array_merge($this->getBaseFormat(), $mergeTarget);
         }
         return $this;
     }
@@ -45,19 +43,13 @@ trait FormatResponsePayloadTrait
      */
     protected function setResponseForArrayable(): self
     {
-        if ($this->getData() instanceof Arrayable) {
+        if (count($this->formattedResponse) === 0 && $this->getData() instanceof Arrayable) {
+            $source = [JsonResource::$wrap => $this->getData()->toArray()];
             if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => [
-                        JsonResource::$wrap => $this->getData()->toArray()
-                    ]
-                ];
+                $this->formattedResponse[self::getPayloadWrapper()] = $source;
             } else {
-                $mergeTarget = [
-                    JsonResource::$wrap => $this->getData()->toArray()
-                ];
+                $this->formattedResponse = $source;
             }
-            $this->formattedResponse = array_merge($this->getBaseFormat(), $mergeTarget);
         }
         return $this;
     }
@@ -67,24 +59,22 @@ trait FormatResponsePayloadTrait
      */
     protected function setResponseForAbstractPaginator(): self
     {
-        if (($this->getData()?->resource ?? null) instanceof AbstractPaginator) {
+        if (count($this->formattedResponse) === 0 && ($this->getData()?->resource ?? null) instanceof AbstractPaginator) {
             $meta = $this->getData()->resource->toArray();
             unset($meta["data"]);
 
             if (self::getPayloadWrapper()) {
-                $mergeTarget = [
-                    self::getPayloadWrapper() => array_merge(
-                        [JsonResource::$wrap => $this->getData()],
-                        $meta,
-                    )
-                ];
-            } else {
-                $mergeTarget = array_merge(
+                $this->formattedResponse[self::getPayloadWrapper()] = array_merge(
                     [JsonResource::$wrap => $this->getData()],
                     $meta,
                 );
+            } else {
+                $this->formattedResponse = array_merge(
+                    $this->formattedResponse,
+                    [JsonResource::$wrap => $this->getData()],
+                    $meta
+                );
             }
-            $this->formattedResponse = array_merge($this->getBaseFormat(), $mergeTarget);
         }
 
         return $this;
@@ -95,10 +85,12 @@ trait FormatResponsePayloadTrait
      */
     protected function setResponseForResource(): self
     {
-        if (self::getPayloadWrapper()) {
-            $this->formattedResponse[self::getPayloadWrapper()] = $this->data ? [JsonResource::$wrap => $this->data] : null;
-        } elseif (!self::getPayloadWrapper() && $this->data) {
-            $this->formattedResponse[JsonResource::$wrap] = $this->data;
+        if (count($this->formattedResponse) === 0) {
+            if (self::getPayloadWrapper()) {
+                $this->formattedResponse[self::getPayloadWrapper()] = $this->getData() ? [JsonResource::$wrap => $this->getData()] : null;
+            } elseif (!self::getPayloadWrapper() && $this->getData()) {
+                $this->formattedResponse[JsonResource::$wrap] = $this->getData();
+            }
         }
 
         return $this;

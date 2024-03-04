@@ -34,6 +34,7 @@ class APIResponse extends BaseAPIResponse
         $this->responseCode = $responseCode;
         $this->errors = $errors;
         $this->exception = $exception;
+        $this->formattedResponse = [];
 
         $this->setBaseFormat()
             ->setFormattedResponse();
@@ -89,7 +90,6 @@ class APIResponse extends BaseAPIResponse
      */
     protected function setFormattedResponse(): void
     {
-        $this->formattedResponse = $this->getBaseFormat();
         $this->setResponseForPaginator()
             ->setResponseForArrayable()
             ->setResponseForAbstractPaginator()

@@ -43,7 +43,7 @@ abstract class BaseAPIResponse implements Responsable
      */
     public function toResponse($request): Response
     {
-        return response()->json($this->getFormattedResponse(), $this->getHttpCode());
+        return response()->json(array_merge($this->getBaseFormat(), $this->getFormattedResponse()), $this->getHttpCode());
     }
 
 
