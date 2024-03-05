@@ -7,6 +7,7 @@ return [
     "target_interface_dir" => "app/Contracts/Interfaces",
     "api_response" => [
         "payload_wrapper" => "payload",
+        "meta_wrapper" => "meta"
     ],
     "is_show_debug" => env("APP_DEBUG", false)
 ];

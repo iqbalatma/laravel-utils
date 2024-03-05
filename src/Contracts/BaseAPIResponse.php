@@ -21,7 +21,7 @@ use Throwable;
 abstract class BaseAPIResponse implements Responsable
 {
     protected array $baseFormat;
-    protected array $formattedResponse;
+    protected $formattedResponse;
     protected JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data;
     protected string $message;
     protected ResponseCodeInterface|null $responseCode;
@@ -43,7 +43,10 @@ abstract class BaseAPIResponse implements Responsable
      */
     public function toResponse($request): Response
     {
-        return response()->json(array_merge($this->getBaseFormat(), $this->getFormattedResponse()), $this->getHttpCode());
+        return response()->json(
+            collect($this->getBaseFormat())->merge($this->getFormattedResponse()),
+            $this->getHttpCode()
+        );
     }
 
 
@@ -75,9 +78,9 @@ abstract class BaseAPIResponse implements Responsable
 
 
     /**
-     * @return array
+     * @return mixed
      */
-    protected function getFormattedResponse(): array
+    protected function getFormattedResponse(): mixed
     {
         return $this->formattedResponse;
     }
@@ -125,10 +128,18 @@ abstract class BaseAPIResponse implements Responsable
 
 
     /**
-     * @return string|bool|null
+     * @return string|null
      */
-    protected static function getPayloadWrapper(): string|null|bool
+    protected static function getPayloadWrapper(): string|null
     {
         return config("utils.api_response.payload_wrapper");
+    }
+
+    /**
+     * @return string|null
+     */
+    protected static function getMetaWrapper(): string|null
+    {
+        return config("utils.api_response.meta_wrapper");
     }
 }
