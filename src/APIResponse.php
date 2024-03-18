@@ -22,6 +22,13 @@ class APIResponse extends BaseAPIResponse
 {
     use FormatResponsePayloadTrait;
 
+    /**
+     * @param JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data
+     * @param string $message
+     * @param ResponseCodeInterface|null $responseCode
+     * @param string|array|null $errors
+     * @param Error|Exception|Throwable|null $exception
+     */
     public function __construct(
         JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
         string                                                                                    $message = "",
