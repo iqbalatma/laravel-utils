@@ -57,6 +57,9 @@ class GenerateAbstract extends Command implements MakeCommandInterface
         return $stubContent;
     }
 
+    /**
+     * @return array
+     */
     public function getStubVariables(): array
     {
         return [

@@ -61,7 +61,9 @@ class GenerateEnum extends Command implements MakeCommandInterface
         return $stubContent;
     }
 
-
+    /**
+     * @return string
+     */
     private function getEnumType(): string
     {
         if ($type = $this->option("type")) {
