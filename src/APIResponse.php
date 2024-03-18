@@ -21,6 +21,14 @@ use Throwable;
 class APIResponse extends BaseAPIResponse
 {
     use FormatResponsePayloadTrait;
+
+    /**
+     * @param JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data
+     * @param string $message
+     * @param ResponseCodeInterface|null $responseCode
+     * @param string|array|null $errors
+     * @param Error|Exception|Throwable|null $exception
+     */
     public function __construct(
         JsonResource|ResourceCollection|Arrayable|LengthAwarePaginator|CursorPaginator|array|null $data = null,
         string                                                                                    $message = "",
@@ -42,7 +50,7 @@ class APIResponse extends BaseAPIResponse
 
 
     /**
-     * @return BaseAPIResponse
+     * @return APIResponse
      */
     protected function setBaseFormat(): self
     {
@@ -52,20 +60,22 @@ class APIResponse extends BaseAPIResponse
             "timestamp" => now()
         ];
 
-        if ($this->errors) { #when errors are detected, mostly for validation error
+        #when errors are detected, mostly for validation error
+        if ($this->errors) {
             $this->baseFormat["errors"] = $this->errors;
         }
 
-        if (self::getPayloadWrapper()) { #when payload wrapper is set, we will preserve the key
+        #when payload wrapper is set, we will preserve the key
+        if (self::getPayloadWrapper()) {
             $this->baseFormat[self::getPayloadWrapper()] = null;
         }
 
         if ($this->exception instanceof Throwable && config("utils.is_show_debug")) {
             $this->baseFormat["user_request"] = [
-                'ip_address' => request()->getClientIp(),
+                'ip_address' => request()->getClientIp() ?? null,
                 'base_url' => request()->getBaseUrl() ?? null,
                 'path' => request()->getUri() ?? null,
-                'params' => request()->getQueryString(),
+                'params' => request()->getQueryString() ?? null,
                 'origin' => request()->ip() ?? null,
                 'method' => request()->getMethod() ?? null,
                 'header' => request()->headers->all() ?? null,

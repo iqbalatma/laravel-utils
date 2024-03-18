@@ -17,20 +17,28 @@ return [
 
 You can generate enum with this utils
 You can also create backed enum, with string or int as type
-
 ### Enum
 ```shell
 php artisan make:enum Gender
 php artisan make:enum Gender --type=string
 ```
+
+You can generate trait with this command
 ### Trait
 ```shell
 php artisan make:trait HasInstitution
 ```
+
+
+
+You can generate abstract with this command
 ### Abstract
 ```shell
 php artisan make:abstract BaseService
 ```
+
+
+You can generate interface with this command
 ### Interface
 ```shell
 php artisan make:inteface IRouter
