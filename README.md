@@ -157,4 +157,26 @@ $this->renderable(function (NotFoundHttpException $e) {
 });
 ```
 
+You can change behavior of json formatting via config file.
+```php
+...
+"api_response" => [
+    "payload_wrapper" => "payload",
+    "meta_wrapper" => "meta"
+],
+"is_show_debug" => env("APP_DEBUG", false)
+...
+```
+- Key is_show_debug use to determine is show exception message or not. This might be cause sensitive information leaks, so do not activate this feature in production environtmen.
+- Key api_response.payload used for key of response. You can change wrapper with another wrapper or set null to not using payload wrapper.
+- Key api_response.meta_wrapper is used for wrapping data meta. When you using 
 
+
+## Helper
+
+### ddapi()
+You can use ddapi() helper function to dump api data to see data of a variable
+```php
+ddapi($data);
+ddapi($data, $data2);
+```
