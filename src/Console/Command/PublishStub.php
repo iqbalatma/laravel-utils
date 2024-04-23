@@ -12,7 +12,7 @@ class PublishStub extends Command
      *
      * @var string
      */
-    protected $signature = 'utils:publish-stub}';
+    protected $signature = 'utils:publish-stub';
 
     /**
      * The console command description.
