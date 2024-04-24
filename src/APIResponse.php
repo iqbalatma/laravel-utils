@@ -55,7 +55,7 @@ class APIResponse extends BaseAPIResponse
     protected function setBaseFormat(): self
     {
         $this->baseFormat = [
-            "code" => $this->getCode()->name,
+            config("utils.api_response.response_code") => $this->getCode()->name,
             "message" => $this->getMessage(),
             "timestamp" => now()
         ];
