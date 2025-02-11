@@ -88,7 +88,7 @@ class APIResponse extends BaseAPIResponse
                 "code" => $this->exception->getCode(),
                 "file" => $this->exception->getFile(),
                 "line" => $this->exception->getLine(),
-                "trace" => $this->exception->getTrace(),
+                "trace" => $this->exception->getTraceAsString(),
             ];
         }
 
