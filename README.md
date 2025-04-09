@@ -11,12 +11,19 @@ return [
     "target_abstract_dir" => "app/Contracts/Abstracts",
     "target_interface_dir" => "app/Contracts/Interfaces",
     "api_response" => [
+        "response_code" => "code",
         "payload_wrapper" => "payload",
-        "meta_wrapper" => null
+        "meta_wrapper" => "meta"
     ],
     "is_show_debug" => env("APP_DEBUG", false)
 ];
 ```
+
+## How to install
+```shell 
+composer require iqbalatma/laravel-utils
+```
+
 
 ## Generate File Command
 

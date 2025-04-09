@@ -13,7 +13,7 @@ use Iqbalatma\LaravelUtils\APIResponse;
 use Iqbalatma\LaravelUtils\Interfaces\ResponseCodeInterface;
 use Throwable;
 
-trait APIResponseTrait
+trait ControllerExtension
 {
     protected array $responseMessages;
 

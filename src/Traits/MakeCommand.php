@@ -27,7 +27,7 @@ trait MakeCommand
     /**
      * @return MakeCommand
      */
-    protected function setArgumentName(): static
+    private function setArgumentName(): static
     {
         $this->argumentName = ucwords($this->getConsoleInstance()->argument("name"));
         return $this;
@@ -44,7 +44,7 @@ trait MakeCommand
     /**
      * @return MakeCommand
      */
-    protected function setClassName(): static
+    private function setClassName(): static
     {
         $this->className = ucwords(last(explode("/", $this->getArgumentName())));
         return $this;
@@ -62,7 +62,7 @@ trait MakeCommand
      * @param string $targetPath
      * @return MakeCommand
      */
-    protected function setTargetPath(string $targetPath): static
+    private function setTargetPath(string $targetPath): static
     {
         $this->targetPath = base_path($targetPath);
 
@@ -89,7 +89,7 @@ trait MakeCommand
     /**
      * @return MakeCommand
      */
-    protected function setFilename(): static
+    private function setFilename(): static
     {
         $this->filename = $this->getTargetPath() . "/" . $this->getClassName() . ".php";
         return $this;
@@ -129,7 +129,7 @@ trait MakeCommand
     /**
      * @return MakeCommand
      */
-    protected function makeDirectory(): static
+    private function makeDirectory(): static
     {
         $this->filesystem = new Filesystem();
         if (!$this->filesystem->isDirectory($this->getTargetPath())) {
@@ -159,9 +159,9 @@ trait MakeCommand
      */
     protected function prepareMakeCommand(string $targetPath): static
     {
-        if (!($this instanceof MakeCommandInterface)){
+        if (!($this instanceof MakeCommandInterface)) {
             $this->error("Generate file failed");
-            $this->error("Class ". get_class($this) . " should implement Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface");
+            $this->error("Class " . get_class($this) . " should implement " . MakeCommandInterface::class);
             die();
         }
         $this->setArgumentName()
