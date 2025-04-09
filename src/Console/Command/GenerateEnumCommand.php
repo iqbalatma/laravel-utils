@@ -6,13 +6,13 @@ use Illuminate\Console\Command;
 use Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface;
 use Iqbalatma\LaravelUtils\Traits\MakeCommand;
 
-class GenerateEnum extends Command implements MakeCommandInterface
+class GenerateEnumCommand extends Command implements MakeCommandInterface
 {
     use MakeCommand;
 
     protected const STUB_FILE_PATH = __DIR__ . "/../Stubs/enum.stub";
     protected const AVAILABLE_TYPES = [
-      "string", "int"
+        "string", "int"
     ];
 
     /**
@@ -47,8 +47,9 @@ class GenerateEnum extends Command implements MakeCommandInterface
         /**
          * using enum stub from published stub if exists, and default stub if not exists
          */
-        $stubContent = $this->filesystem->exists(base_path("stubs/laravel-utils/enum.stub")) ?
-            file_get_contents("stubs/laravel-utils/enum.stub") :
+        $overridePath = base_path("stubs/laravel-utils/enum.stub");
+        $stubContent = $this->filesystem->exists($overridePath) ?
+            file_get_contents($overridePath) :
             file_get_contents(self::STUB_FILE_PATH);
 
         /**
@@ -67,13 +68,13 @@ class GenerateEnum extends Command implements MakeCommandInterface
     private function getEnumType(): string
     {
         if ($type = $this->option("type")) {
-            if (in_array($type, self::AVAILABLE_TYPES)) {
+            if (in_array($type, self::AVAILABLE_TYPES, true)) {
                 return ":$type";
             }
 
             $this->error("Type is invalid");
             $this->info("Available Type : ");
-            foreach (self::AVAILABLE_TYPES as $type){
+            foreach (self::AVAILABLE_TYPES as $type) {
                 $this->info("-$type");
             }
             die();

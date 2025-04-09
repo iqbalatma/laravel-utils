@@ -7,7 +7,11 @@ use Illuminate\Http\JsonResponse;
 
 class DumpAPIException extends Exception
 {
-    public function __construct(public array $data) {    }
+    public function __construct(public array $data)
+    {
+        parent::__construct($message = "", $code = 0, $previous = null);
+    }
+
 
     #Post
     public function render(): JsonResponse

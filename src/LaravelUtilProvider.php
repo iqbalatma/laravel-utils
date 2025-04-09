@@ -3,11 +3,11 @@
 namespace Iqbalatma\LaravelUtils;
 
 use Illuminate\Support\ServiceProvider;
-use Iqbalatma\LaravelUtils\Console\Command\GenerateAbstract;
-use Iqbalatma\LaravelUtils\Console\Command\GenerateEnum;
-use Iqbalatma\LaravelUtils\Console\Command\GenerateInterface;
-use Iqbalatma\LaravelUtils\Console\Command\GenerateTrait;
-use Iqbalatma\LaravelUtils\Console\Command\PublishStub;
+use Iqbalatma\LaravelUtils\Console\Command\GenerateAbstractCommand;
+use Iqbalatma\LaravelUtils\Console\Command\GenerateEnumCommand;
+use Iqbalatma\LaravelUtils\Console\Command\GenerateInterfaceCommand;
+use Iqbalatma\LaravelUtils\Console\Command\GenerateTraitCommand;
+use Iqbalatma\LaravelUtils\Console\Command\PublishStubCommand;
 
 class LaravelUtilProvider extends ServiceProvider
 {
@@ -30,11 +30,11 @@ class LaravelUtilProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                GenerateAbstract::class,
-                GenerateEnum::class,
-                GenerateInterface::class,
-                GenerateTrait::class,
-                PublishStub::class,
+                GenerateAbstractCommand::class,
+                GenerateEnumCommand::class,
+                GenerateInterfaceCommand::class,
+                GenerateTraitCommand::class,
+                PublishStubCommand::class,
             ]);
         }
     }

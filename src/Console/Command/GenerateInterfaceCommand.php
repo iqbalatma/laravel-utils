@@ -6,34 +6,35 @@ use Illuminate\Console\Command;
 use Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface;
 use Iqbalatma\LaravelUtils\Traits\MakeCommand;
 
-class GenerateAbstract extends Command implements MakeCommandInterface
+class GenerateInterfaceCommand extends Command implements MakeCommandInterface
 {
     use MakeCommand;
 
-    protected const STUB_FILE_PATH = __DIR__ . "/../Stubs/abstract.stub";
+    protected const STUB_FILE_PATH = __DIR__ . "/../Stubs/interface.stub";
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:abstract {name : abstract name}';
+    protected $signature = 'make:interface {name : interface name}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new abstract class';
+    protected $description = 'Create a new interface';
 
     /**
      * Execute the console command.
      */
     public function handle(): void
     {
-        $this->prepareMakeCommand(config("utils.target_abstract_dir", "app/Contracts/Abstracts"))
+        $this->prepareMakeCommand(config("utils.target_interface_dir", "app/Contracts/Interface"))
             ->generateFromStub();
     }
+
 
     /**
      * @return string
@@ -41,10 +42,11 @@ class GenerateAbstract extends Command implements MakeCommandInterface
     public function getStubContent(): string
     {
         /**
-         * using abstract stub from published stub if exists, and default stub if not exists
+         * using interface stub from published stub if exists, and default stub if not exists
          */
-        $stubContent = $this->filesystem->exists(base_path("stubs/laravel-utils/abstract.stub")) ?
-            file_get_contents("stubs/laravel-utils/abstract.stub") :
+        $overridePath = base_path("stubs/laravel-utils/interface.stub");
+        $stubContent = $this->filesystem->exists($overridePath) ?
+            file_get_contents($overridePath) :
             file_get_contents(self::STUB_FILE_PATH);
 
         /**
@@ -63,8 +65,8 @@ class GenerateAbstract extends Command implements MakeCommandInterface
     public function getStubVariables(): array
     {
         return [
-            "CLASS_NAME" => $this->getClassName(),
-            "NAMESPACE" => $this->getNamespace()
+            "NAMESPACE" => $this->getNamespace(),
+            "CLASS_NAME" => $this->getClassName()
         ];
     }
 }

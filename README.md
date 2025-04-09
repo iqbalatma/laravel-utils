@@ -82,7 +82,7 @@ class PermissionController extends ApiController
         $data = Permission::all();
 
         return $this->response(
-            new PermissionResourceCollection($data),
+            new APIResponse(new PermissionResourceCollection($data)),
             "Get all data permission successfully"
         );
     }
@@ -98,7 +98,7 @@ Description :
 The response would be 
 ```json
 {
-    "rc": "SUCCESS",
+    "code": "SUCCESS",
     "message": "Get all data permission successfully",
     "timestamp": "2023-10-26T23:49:47.387526Z",
     "payload": {
@@ -173,6 +173,7 @@ You can change behavior of json formatting via config file.
 ```php
 ...
 "api_response" => [
+    "response_code" => "code",
     "payload_wrapper" => "payload",
     "meta_wrapper" => "meta"
 ],

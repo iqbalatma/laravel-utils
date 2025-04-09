@@ -6,31 +6,32 @@ use Illuminate\Console\Command;
 use Iqbalatma\LaravelUtils\Interfaces\MakeCommandInterface;
 use Iqbalatma\LaravelUtils\Traits\MakeCommand;
 
-class GenerateTrait extends Command implements MakeCommandInterface
+class GenerateAbstractCommand extends Command implements MakeCommandInterface
 {
     use MakeCommand;
-    protected const STUB_FILE_PATH = __DIR__ . "/../Stubs/trait.stub";
+
+    protected const STUB_FILE_PATH = __DIR__ . "/../Stubs/abstract.stub";
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'make:trait {name : trait name}';
+    protected $signature = 'make:abstract {name : abstract name}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new trait';
+    protected $description = 'Create a new abstract class';
 
     /**
      * Execute the console command.
      */
-    public function handle():void
+    public function handle(): void
     {
-        $this->prepareMakeCommand(config("utils.target_trait_dir", "app/Traits"))
+        $this->prepareMakeCommand(config("utils.target_abstract_dir", "app/Contracts/Abstracts"))
             ->generateFromStub();
     }
 
@@ -40,10 +41,11 @@ class GenerateTrait extends Command implements MakeCommandInterface
     public function getStubContent(): string
     {
         /**
-         * using trait stub from published stub if exists, and default stub if not exists
+         * using abstract stub from published stub if exists, and default stub if not exists
          */
-        $stubContent = $this->filesystem->exists(base_path("stubs/laravel-utils/trait.stub")) ?
-            file_get_contents("stubs/laravel-utils/trait.stub") :
+        $overridePath = base_path("stubs/laravel-utils/abstract.stub");
+        $stubContent = $this->filesystem->exists($overridePath) ?
+            file_get_contents($overridePath) :
             file_get_contents(self::STUB_FILE_PATH);
 
         /**
@@ -63,7 +65,7 @@ class GenerateTrait extends Command implements MakeCommandInterface
     {
         return [
             "CLASS_NAME" => $this->getClassName(),
-            "NAMESPACE" => $this->getNamespace(),
+            "NAMESPACE" => $this->getNamespace()
         ];
     }
 }

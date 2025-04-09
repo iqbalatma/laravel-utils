@@ -5,7 +5,7 @@ namespace Iqbalatma\LaravelUtils\Console\Command;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
-class PublishStub extends Command
+class PublishStubCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -30,12 +30,13 @@ class PublishStub extends Command
 
         $fileSystem = new Filesystem();
 
-        if (!$fileSystem->isDirectory(base_path("/stubs/laravel-utils"))){
-            $fileSystem->makeDirectory(base_path("/stubs/laravel-utils"), recursive: true);
+        $targetPath = base_path("/stubs/laravel-utils/");
+        if (!$fileSystem->isDirectory($targetPath)){
+            $fileSystem->makeDirectory($targetPath, recursive: true);
         }
 
         foreach ($fileSystem->allFiles(__DIR__ . "/../Stubs",) as $file) {
-            $fileSystem->copy($file->getRealPath(), base_path("/stubs/laravel-utils/").$file->getFilename());
+            $fileSystem->copy($file->getRealPath(), $targetPath.$file->getFilename());
         }
 
         $this->info("Stub asset published");
